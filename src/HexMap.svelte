@@ -55,6 +55,7 @@
 		<g on:click="{(e) => onClick(e, d)}" bind:this={el[d.key]} class="{d.status}" transform="translate({d.x} {d.y})">
 			<polygon class="hex" points="{makePoints(d.vertices)}"/>
 			<text class="text">{d.n.slice(0,1)}</text>
+			<title>{d.n}</title>
 		</g>
 		{/each}
 	</svg>
