@@ -5,11 +5,22 @@
 	import adj from "./adj.json";
 	import HexMap from "./HexMap.svelte";
 	import Tooltip from "./Tooltip.svelte";
+	import accordian from "./accordian.svelte";
 	import { fade, slide } from "svelte/transition";
+	import DarkToggle from "./darktoggle.svelte";
+
+	import ONSSkipLink from "./ui/ons/ONSSkipLink.svelte";
+	import ONSExternalHeaderWithDescription from "./ui/ons/ONSExternalHeaderWithDescription.svelte";
+
+	let title = "Quiz";
+	let description = "subtitle";
 
 	const width = 800;
 	const height = 1000;
 	const adjdist = 32.653; // Distance between two adjacent hexes
+
+	let isOpen = false
+	const toggle = () => isOpen = !isOpen
 
 	let start; // Starting place
 	let dest; // Destination
@@ -37,6 +48,8 @@
 	let status = "select"; // Game status, other options 'question', 'lost', 'won'
 	let right = []; // Array of place codes correctly guessed
 	let wrong = []; // Array of place codes wrongly guessed
+	let score = 0;
+	let gameswon = 0;
 
 	const routes = [
 		{
@@ -87,9 +100,11 @@
 			right.push(next.key);
 			if (next.key == dest) {
 				status = "won";
+				gameswon += 1;
 			} else {
 				status = "select";
 				selected = next;
+				score += 1;
 			}
 		} else {
 			wrong.push(next.key);
@@ -191,12 +206,25 @@
 				right.push(start);
 
 				data = [...data];
+				
 			});
 		});
+
+		
+
 </script>
+
+
 
 <main>
 	{#if data}
+
+		<DarkToggle>Light/Dark</DarkToggle>
+
+		<!-- <ONSSkipLink />
+		<ONSExternalHeaderWithDescription {title} description={description} />
+		<ONSSkipLink /> -->
+		
 		<h1 class="orbitron">
 			MapBusters
 			<br />
@@ -224,7 +252,7 @@
 					<h2>Pick a starting location:</h2>
 
 					<select bind:value={start}>
-						{#each data as option}
+						{#each data.sort() as option}
 							<option value={option.key}>{option.n}</option>
 						{/each} -->
 					</select>
@@ -234,7 +262,7 @@
 					<h2>Pick an end location:</h2>
 
 					<select bind:value={dest}>
-						{#each data as option}
+						{#each data.sort() as option}
 							<option value={option.key}>{option.n}</option>
 						{/each} -->
 					</select>
@@ -329,6 +357,7 @@
 								>
 							{/if}
 						</div>
+						<div>Score: {score}</div>
 					{/if}
 				</div>
 
@@ -382,12 +411,19 @@
 <style>
 	@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap");
 
+	:global(body.dark-mode) {
+		color: #333;
+    	background-color: #f4f4f4;
+
+	}
+
 	:global(body) {
 		background: #222;
 		color: white;
+		transition: background-color 0.3s
 	}
 	.orbitron {
-		font-family: "Orbitron", sans-serif;
+		/* font-family: "Orbitron", sans-serif; */
 	}
 	.text-lrg {
 		font-size: 1.4em;
@@ -457,4 +493,6 @@
 		padding-bottom: 0.5em;
 		padding-top: 0.5em;
 	}
+
+	[aria-expanded=true] svg { transform: rotate(0.25turn); }
 </style>
