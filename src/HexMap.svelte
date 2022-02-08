@@ -63,12 +63,13 @@
 
 <style>
 	.hex {
-		fill: yellow;
-		stroke: orange;
+		fill: darkgrey;
+		stroke: darkgrey;
 		stroke-width: 3px;
 		transform: scale(0.85);
 	}
 	.text {
+		fill: white;
 		font-family: 'Orbitron', sans-serif;
 		font-size: 16px;
 		font-weight: bold;
@@ -77,19 +78,19 @@
 		pointer-events: none;
 	}
 	.selected > polygon, .right > polygon {
-		fill: #0f0;
-		stroke: green;
+		fill: #206095;
+		stroke: #206095;
 	}
 	.wrong {
 		opacity: 0;
 	}
 	.next > polygon {
-		fill: cyan;
-		stroke: blue;
+		fill: #22D0B6;
+		stroke: #22D0B6;
 	}
 	.dest > polygon {
-		fill: white;
-		stroke: grey;
+		fill: #F66068;
+		stroke: #F66068;
 	}
 	.adjacent {
 		animation: blink 1s linear infinite;

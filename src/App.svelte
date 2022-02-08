@@ -39,6 +39,8 @@
 		screen: "start",
 		higherLower: false,
 		trivia: false,
+		setupCustom: false,
+		setupPreset: false,
 		routePreset: false,
 		routeRandom: false,
 		routeCustom: false,
@@ -58,6 +60,7 @@
 			end: "S12000017",
 		},
 		{ name: "London to Edinburgh", start: "E09000033", end: "S12000036" },
+		{ name: "Lands End to Marshal Meadows Bay", start: "E06000052", end: "E0600057"}
 	];
 
 	function doSelect(e) {
@@ -142,6 +145,14 @@
 		state.trivia = !state.trivia;
 	}
 
+	function setupGameCustom() {
+		state.screen = "setupCustom";
+	}
+
+	function setupGamePreset() {
+		state.screen = "setupPreset";
+	}
+
 	function startGameCustom() {
 		right.push(start);
 		state.screen = "quiz";
@@ -219,14 +230,14 @@
 <main>
 	{#if data}
 
-		<DarkToggle>Light/Dark</DarkToggle>
+		<!-- <DarkToggle>Light/Dark</DarkToggle> -->
 
 		<!-- <ONSSkipLink />
 		<ONSExternalHeaderWithDescription {title} description={description} />
 		<ONSSkipLink /> -->
 		
 		<h1 class="orbitron">
-			MapBusters
+			Hex Map Game
 			<br />
 		</h1>
 
@@ -244,52 +255,21 @@
 					stroke-width="2"
 					viewBox="0 0 24 24"
 					stroke="currentColor"><path d="M9 5l7 7-7 7" /></svg
-				>Higher Lower</button
-			>
+				>Higher Lower</button>
 
 			{#if state.higherLower}
 				<div transition:slide>
-					<h2>Pick a starting location:</h2>
+					<div class="subButtonOuter"><button on:click={setupGameCustom}>Pick Your Own Custom Start/End Locations</button></div>				
+					
+					<div class="subButtonOuter"><button on:click={setupGamePreset}>Select From Preset Route</button></div>
+					
+					<div class="subButtonOuter"><button on:click={startGameRandom}>Random Start/End Locations</button></div>
 
-					<select bind:value={start}>
-						{#each data.sort() as option}
-							<option value={option.key}>{option.n}</option>
-						{/each} -->
-					</select>
-
-					<br />
-
-					<h2>Pick an end location:</h2>
-
-					<select bind:value={dest}>
-						{#each data.sort() as option}
-							<option value={option.key}>{option.n}</option>
-						{/each} -->
-					</select>
-
-					<br />
-
-					<button on:click={startGameCustom}>Start Custom Game</button
-					>
-
-					<hr />
-
-					<button on:click={startGameRandom}>Start Random Game</button
-					>
-
-					<hr />
-
-					<h2 class="tooltip" title="this is a test">
-						Or select a preset route
-					</h2>
-					<select bind:value={selectedRoute}>
-						{#each routes as option}
-							<option value={option}>{option.name}</option>
-						{/each} -->
-					</select>
-					<button on:click={startGamePreset}>Start Game</button>
+					
 				</div>
+
 			{/if}
+			
 
 			<button class="menuButton" on:click={startGameTrivia}
 				><svg
@@ -308,6 +288,52 @@
 			{#if state.trivia}
 			<div transition:slide>Triva mode not yet implemented, Sorry!</div>
 			{/if}
+
+
+		{:else if state.screen === "setupCustom"}
+		
+			<h2>Pick a starting location:</h2>
+
+			<select bind:value={start}>
+				{#each data as option}
+					<option value={option.key}>{option.n}</option>
+				{/each} -->
+			</select>
+
+			<br />
+
+			<h2>Pick an end location:</h2>
+
+			<select bind:value={dest}>
+
+				<!-- svelte-ignore empty-block -->
+				{#each [...data].sort((a, b) => a.n.localeCompare(b.n)) as place}{/each}
+
+
+
+				{#each data as option}
+					<option value={option.key}>{option.n}</option>
+				{/each} -->
+			</select>
+
+			<br />
+
+			<button on:click={startGameCustom}>Start Custom Game</button>
+
+		
+		{:else if state.screen === "setupPreset"}
+		
+			<h2 class="tooltip" title="this is a test">
+				Select a preset route
+			</h2>
+			<select bind:value={selectedRoute}>
+				{#each routes as option}
+					<option value={option}>{option.name}</option>
+				{/each} -->
+			</select>
+			<button on:click={startGamePreset}>Start Game</button>
+
+
 		{:else if state.screen === "quiz"}
 			<h2 class="tooltip" title="this is a test">
 				{data.find((d) => d.key == start).n} to {data.find(
@@ -409,21 +435,15 @@
 </main>
 
 <style>
-	@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap");
 
-	:global(body.dark-mode) {
-		color: #333;
-    	background-color: #f4f4f4;
-
-	}
-
+	@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap');
+	
 	:global(body) {
-		background: #222;
-		color: white;
-		transition: background-color 0.3s
+		background: white;
+		color: #222;
 	}
 	.orbitron {
-		/* font-family: "Orbitron", sans-serif; */
+		font-family: 'Open Sans', sans-serif;
 	}
 	.text-lrg {
 		font-size: 1.4em;
@@ -431,34 +451,36 @@
 	}
 	.text-sml {
 		font-size: 0.85em;
-		color: lightgrey;
+		color: grey;
+		padding-bottom: 15px;
 	}
 	#q-container {
 		min-height: 75px;
 		box-sizing: border-box;
-		margin: 0 0 20px 0;
+		margin: 10px 0 20px 0;
 		padding: 10px 0;
-		border-top: 1px solid #ddd;
-		border-bottom: 1px solid #ddd;
+		background-color: #eee;
 	}
 	#q-container > div {
 		display: inline-block;
+		box-sizing: border-box;
 		margin: 0;
+		padding: 0 10px;
 		width: 49%;
 		vertical-align: top;
 	}
 	#q-container button {
-		padding: 0 3px;
+		padding: 0 5px;
 		font-weight: bold;
 		border: none;
 		cursor: pointer;
 		margin: 0;
 	}
 	.green {
-		background-color: lightgreen;
+		background-color: #22D0B6;
 	}
 	.red {
-		background-color: pink;
+		background-color: #27A0CC;
 	}
 	#map-container {
 		width: 100%;
@@ -466,15 +488,10 @@
 		position: relative;
 	}
 	a {
-		color: lightblue;
+		color: #206095;
 	}
 	h1 {
-		margin-bottom: 0;
-	}
-	h2 {
-		margin-top: 0;
-		font-weight: normal;
-		font-size: 1.2em;
+		margin: 10px 0 0 0;
 	}
 	main {
 		max-width: 900px;
@@ -492,6 +509,10 @@
 		margin: 0;
 		padding-bottom: 0.5em;
 		padding-top: 0.5em;
+	}
+
+	.subButtonOuter {
+		padding-left: 3em;
 	}
 
 	[aria-expanded=true] svg { transform: rotate(0.25turn); }
