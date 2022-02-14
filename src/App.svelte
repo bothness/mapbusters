@@ -4,17 +4,20 @@
 	import { hexurl, dataurl } from "./config";
 	import adj from "./adj.json";
 	import HexMap from "./HexMap.svelte";
-	import Tooltip from "./Tooltip.svelte";
-	import accordian from "./accordian.svelte";
+	// import Tooltip from "./Tooltip.svelte";
+	// import accordian from "./accordian.svelte";
 	import { fade, slide } from "svelte/transition";
-	import DarkToggle from "./darktoggle.svelte";
+	// import DarkToggle from "./darktoggle.svelte";
 
-	import ONSSkipLink from "./ui/ons/ONSSkipLink.svelte";
-	import ONSExternalHeaderWithDescription from "./ui/ons/ONSExternalHeaderWithDescription.svelte";
+	// import ONSSkipLink from "./ui/ons/ONSSkipLink.svelte";
+	// import ONSExternalHeaderWithDescription from "./ui/ons/ONSExternalHeaderWithDescription.svelte";
 
-	let title = "Quiz";
-	let description = "subtitle";
+	// let title = "Quiz";
+	// let description = "subtitle";
 
+	import {Tooltip} from 'carbon-components-svelte';
+	import "carbon-components-svelte/css/g10.css";
+ 
 	const width = 800;
 	const height = 1000;
 	const adjdist = 32.653; // Distance between two adjacent hexes
@@ -53,6 +56,8 @@
 	let score = 0;
 	let gameswon = 0;
 
+	let keyboard_counter ;
+
 	const routes = [
 		{
 			name: "Lands End to John o'Groats",
@@ -73,8 +78,13 @@
 		}
 	}
 
-	function setStatus() {
+	function setStatus(start=undefined) {
+		keyboard_counter = 1
+
+	
+
 		data.forEach((d) => {
+			d.id = undefined;
 			//if the place is the same as the entry - mark as selected
 			if (selected && d.key == selected.key) {
 				d.status = "selected";
@@ -89,10 +99,19 @@
 				d.status = "dest";
 			} else if (status == "select" && selected.adj.includes(d.key)) {
 				d.status = "adjacent";
+				d.id=keyboard_counter++;
 			} else {
 				d.status = "";
 			}
 		});
+
+		
+	if (start){
+			data.forEach(d => {
+				if (d.key === start)
+				d.status = 'start';
+			});
+		}
 	}
 
 	function guess(hl) {
@@ -133,7 +152,7 @@
 		selected = data.find((d) => d.key == start);
 		right.push(start);
 		status = "select";
-		setStatus();
+		setStatus(start);
 		data = [...data];
 	}
 
@@ -157,17 +176,17 @@
 		right.push(start);
 		state.screen = "quiz";
 		selected = data.find((d) => d.key == start);
-		setStatus();
+		setStatus(start);
 	}
 
-	function startGamePreset() {
+	function startGamePreset(start) {
 		start = selectedRoute.start;
 		dest = selectedRoute.end;
 		right.push(start);
 
 		state.screen = "quiz";
 		selected = data.find((d) => d.key == start);
-		setStatus();
+		setStatus(start);
 	}
 
 	function startGameRandom() {
@@ -189,7 +208,7 @@
 		right.push(start);
 		state.screen = "quiz";
 		selected = data.find((d) => d.key == start);
-		setStatus();
+		setStatus(start);
 	}
 
 	// function selectNew() {
@@ -222,6 +241,7 @@
 		});
 
 		
+
 
 </script>
 
@@ -297,7 +317,7 @@
 			<select bind:value={start}>
 				{#each data as option}
 					<option value={option.key}>{option.n}</option>
-				{/each} -->
+				{/each} 
 			</select>
 
 			<br />
@@ -313,7 +333,7 @@
 
 				{#each data as option}
 					<option value={option.key}>{option.n}</option>
-				{/each} -->
+				{/each} 
 			</select>
 
 			<br />
@@ -329,7 +349,7 @@
 			<select bind:value={selectedRoute}>
 				{#each routes as option}
 					<option value={option}>{option.name}</option>
-				{/each} -->
+				{/each} 
 			</select>
 			<button on:click={startGamePreset}>Start Game</button>
 
@@ -385,7 +405,41 @@
 						</div>
 						<div>Score: {score}</div>
 					{/if}
+
+
 				</div>
+
+				<Tooltip
+				direction="bottom"
+				tabIndex={0}
+				triggerText="Keyboard Controls (Mouse Free)"
+				alignment='end'
+				placement='right'
+			  >
+				<h5>
+				  Keyboard Controls (Mouse Free) 
+				</h5><br>
+				For a mouse free experience press the 'tab' key until the map is selected and then navigate using the number row:
+				<br><br>
+				<table>
+					<tr>
+						<td>  shift & number  </td>
+						<td>&nbsp;&nbsp;&nbsp;</td>
+						<td>  select area  </td>
+					</tr>
+					<tr>
+						<td>  shift & +  </td>
+						<td>&nbsp;</td>
+						<td>  guess higher  </td>
+					</tr>
+					<tr>
+						<td>  shift & -  </td>
+						<td>&nbsp;</td>
+						<td>  guess lower </td>
+					</tr>
+				</table>
+				</Tooltip>	
+
 
 				<div id="map-container">
 					<HexMap
@@ -394,41 +448,44 @@
 						{height}
 						{selected}
 						on:select={doSelect}
+						on:guesskey={(a)=>{console.log(a.detail.code);guess(a.detail.code)}}
+						
 					/>
 				</div>
+				
 			{/if}
 		{/if}
 
 		<!-- <Tooltip> THIS IS A TEST </Tooltip> -->
-
+<!-- Tab index -1 to try tabbing active hex only (may be removed if other method implemented) -->
 		<p class="text-sml">
-			Coded by <a href="https://twitter.com/bothness" target="_blank"
+			Coded by <a href="https://twitter.com/bothness" tabIndex=-1 target="_blank"
 				>Ahmad Barclay</a
 			>
 			with support from
-			<a href="https://twitter.com/SamCtrl" target="_blank"
+			<a href="https://twitter.com/SamCtrl" tabIndex=-1 target="_blank"
 				>Sam Cottrell</a
 			>. Gameplay concept inspired by
-			<a href="https://twitter.com/Frankman1000" target="_blank"
+			<a href="https://twitter.com/Frankman1000" tabIndex=-1 target="_blank"
 				>Frank Donnarumma</a
 			>
 			and the brilliant ONS digital content team. Local authorities
-			<a href="https://github.com/odileeds/hexmaps/" target="_blank"
+			<a href="https://github.com/odileeds/hexmaps/" tabIndex=-1 target="_blank"
 				>hexmap</a
 			>
 			by
-			<a href="https://twitter.com/ODILeeds" target="_blank">ODI Leeds</a
+			<a href="https://twitter.com/ODILeeds" tabIndex=-1 target="_blank">ODI Leeds</a
 			>. Hexmap
-			<a href="https://github.com/olihawkins/d3-hexjson/" target="_blank"
+			<a href="https://github.com/olihawkins/d3-hexjson/" tabIndex=-1 target="_blank"
 				>rendering script</a
 			>
 			by
-			<a href="https://twitter.com/olihawkins" target="_blank"
+			<a href="https://twitter.com/olihawkins" tabIndex=-1 target="_blank"
 				>Oli Hawkins</a
 			>. 2020 mid-year population estimates from
 			<a
 				href="https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/populationestimatesforukenglandandwalesscotlandandnorthernireland"
-				target="_blank">ONS</a
+				tabIndex=-1 target="_blank">ONS</a
 			>.
 		</p>
 	{/if}
@@ -455,6 +512,7 @@
 		padding-bottom: 15px;
 	}
 	#q-container {
+		display:block;
 		min-height: 75px;
 		box-sizing: border-box;
 		margin: 10px 0 20px 0;
@@ -468,6 +526,7 @@
 		padding: 0 10px;
 		width: 49%;
 		vertical-align: top;
+		padding-bottom: 10px;
 	}
 	#q-container button {
 		padding: 0 5px;
@@ -484,8 +543,10 @@
 	}
 	#map-container {
 		width: 100%;
-		height: 350px;
+		/* height: calc(90%-300px); */
+		height:30vh;
 		position: relative;
+		display: inline-block;
 	}
 	a {
 		color: #206095;
